@@ -8,12 +8,12 @@ A self-hosted status monitoring application built with Node.js and Next.js, conv
 - **SQLite database**: Local file-based storage for monitor data
 - **Beautiful UI**: Modern React-based status page
 - **Notifications**: Support for Apprise notifications
-- **Docker support**: Easy deployment with Docker and Docker Compose
+- **Docker support**: Easy deployment with Docker and Docker Compose (Un Tested)
 - **Configurable**: YAML-based configuration for monitors
 
 ## Quick Start
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Docker Compose (Un Tested)
 
 1. Clone the repository:
 ```bash
@@ -40,10 +40,10 @@ docker-compose up -d
 
 4. Access your status page at `http://localhost:3000`
 
-### Option 2: Manual Installation
+### Option 2: Manual Installation (Recommended)
 
 1. **Prerequisites:**
-   - Node.js 18+ 
+   - Node.js 20 (Tested on v20.19.4) 
    - npm
 
 2. **Install dependencies:**
@@ -105,7 +105,7 @@ STATUS_API_URL=http://localhost:3001
 
 ### YAML Configuration
 
-Create a `status-config.yaml` file:
+Edit a `server/status-config.yaml` file:
 
 ```yaml
 title: "My Status Page"
