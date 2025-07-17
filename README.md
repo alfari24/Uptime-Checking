@@ -1,70 +1,294 @@
-<div align="right">
-  <a title="English" href="README.md"><img src="https://img.shields.io/badge/-English-A31F34?style=for-the-badge" alt="English" /></a>
-  <a title="简体中文" href="README_zh-CN.md"><img src="https://img.shields.io/badge/-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-545759?style=for-the-badge" alt="简体中文"></a>
-</div>
+# Self-Hosted Status Monitor
 
-# ✔Status Monitor
+A self-hosted status monitoring application built with Node.js and Next.js, converted from the original Cloudflare-based UptimeFlare.
 
-A self-hosted, Node.js-based status monitoring & status page solution, refactored from the original UptimeFlare to be completely independent of Cloudflare infrastructure.
+## Features
 
-## 🏠 Self-Hosted Version
+- **Real-time monitoring**: HTTP/HTTPS endpoints and TCP ports
+- **SQLite database**: Local file-based storage for monitor data
+- **Beautiful UI**: Modern React-based status page
+- **Notifications**: Support for Apprise notifications
+- **Docker support**: Easy deployment with Docker and Docker Compose (Un Tested)
+- **Configurable**: YAML-based configuration for monitors
 
-This repository now contains a **self-hosted version** that runs independently on your own servers or Docker containers. For the original Cloudflare-based version, please visit [UptimeFlare](https://github.com/lyc8503/UptimeFlare).
+## Preview
+<img width="2618" height="2004" alt="image" src="https://github.com/user-attachments/assets/15e14891-4f1f-4bd2-b5cd-b96c0502e7f5" />
+<img width="2636" height="1998" alt="image" src="https://github.com/user-attachments/assets/93488029-78a5-48d0-bb9c-c0f2003fbbae" />
+<img width="2642" height="1996" alt="image" src="https://github.com/user-attachments/assets/0d5420f7-bcd5-459c-81c3-8341a727c94e" />
 
-**📖 [Self-Hosted Setup Guide](README_SELFHOSTED.md)**
 
-## ⭐Features
+## Quick Start
 
-- **Self-hosted**: Run on your own infrastructure with full control
-- **Node.js & SQLite**: Lightweight, fast, and reliable
-- **Docker support**: Easy deployment with Docker and Docker Compose
-- **Monitoring capabilities**
-  - HTTP/HTTPS/TCP port monitoring
-  - Customizable check intervals
-  - Up to 90-day uptime history
-  - Customizable request methods, headers, and body for HTTP(s)
-  - Custom status code & keyword checks for HTTP(s)
-  - Downtime notification supporting [100+ notification channels](https://github.com/caronc/apprise/wiki) via Apprise
-  - Customizable Webhook
-- Status page
-  - Interactive ping (response time) chart for all types of monitors
-  - Responsive UI that adapts to your system theme
-  - Customizable status page
-  - Use your own domain with CNAME
-  - Optional password authentication (private status page)
-  - JSON API for fetching realtime status data
+### Option 1: Docker Compose (Un Tested)
 
-## 👀Demo
+1. Clone the repository:
+```bash
+git clone https://github.com/alfari24/status.git
+cd status
+```
 
-My status page (Online demo): https://uptimeflare.pages.dev/
+2. Configure your monitors by editing `status-config.yaml`:
+```yaml
+title: "My Status Page"
+monitors:
+  - id: "my-website"
+    name: "My Website"
+    method: "GET"
+    target: "https://example.com"
+    expectedCodes: [200]
+    timeout: 10000
+```
 
-Some screenshots:
+3. Start the application:
+```bash
+docker-compose up -d
+```
 
-![Desktop, Light theme](docs/desktop.png)
+4. Access your status page at `http://localhost:3000`
 
-## ⚡Quickstart / 📄Documentation
+### Option 2: Manual Installation (Recommended)
 
-Please refer to [Wiki](https://github.com/lyc8503/UptimeFlare/wiki)
+1. **Prerequisites:**
+   - Node.js 20 (Tested on v20.19.4) 
+   - npm
 
-## New features (TODOs)
+2. **Install dependencies:**
+```bash
+npm install
+cd server && npm install && cd ..
+```
 
-- [x] Specify region for monitors
-- [x] TCP `opened` promise
-- [x] Use apprise to support various notification channels
-- [x] ~~Telegram example~~
-- [x] ~~[Bark](https://bark.day.app) example~~
-- [x] ~~Email notification via Cloudflare Email Workers~~
-- [x] Improve docs by providing simple examples
-- [x] Notification grace period
-- [ ] SSL certificate checks
-- [x] ~~Self-host Dockerfile~~
-- [x] Incident history
-- [x] Improve `checkLocationWorkerRoute` and fix possible `proxy failed`
-- [x] Groups
-- [x] Remove old incidents
-- [x] ~~Known issue~~: `fetch` doesn't support non-standard port (resolved after CF update)
-- [x] Compatibility date update
-- [x] Scheduled Maintenance 
-- [ ] Update wiki/README and add docs for dev
-- [ ] Migration to Terraform Cloudflare provider version 5.x
-- [ ] Cloudflare D1 database
+3. **Configure the application:**
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+4. **Build the application:**
+```bash
+npm run build
+```
+
+5. **Start the services:**
+```bash
+# Start the monitoring server
+npm run start:server &
+
+# Start the frontend
+npm run start:frontend
+```
+
+6. Access your status page at `http://localhost:3000`
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Server configuration
+PORT=3001
+HOST=0.0.0.0
+CHECK_INTERVAL=1
+
+# Database configuration
+DB_PATH=./status.db
+CLEANUP_DAYS=90
+
+# Notification configuration (optional)
+APPRISE_API_SERVER=https://apprise.example.com/notify
+RECIPIENT_URL=tgram://bottoken/ChatID
+TIME_ZONE=Asia/Shanghai
+GRACE_PERIOD=5
+
+# Application title
+APP_TITLE=Status Monitor
+
+# Frontend API URL
+STATUS_API_URL=http://localhost:3001
+```
+
+### YAML Configuration
+
+Edit a `server/status-config.yaml` file:
+
+```yaml
+title: "My Status Page"
+
+server:
+  port: 3001
+  host: "0.0.0.0"
+  checkInterval: 1 # minutes
+
+database:
+  path: "./status.db"
+  cleanupDays: 90
+
+notification:
+  appriseApiServer: "https://apprise.example.com/notify"
+  recipientUrl: "tgram://bottoken/ChatID"
+  timeZone: "Asia/Shanghai"
+  gracePeriod: 5 # minutes
+
+monitors:
+  - id: "example-website"
+    name: "Example Website"
+    method: "GET"
+    target: "https://example.com"
+    tooltip: "Main website"
+    statusPageLink: "https://example.com"
+    expectedCodes: [200]
+    timeout: 10000
+    
+  - id: "example-api"
+    name: "Example API"
+    method: "GET"
+    target: "https://api.example.com/health"
+    headers:
+      Authorization: "Bearer token"
+    expectedCodes: [200]
+    timeout: 5000
+    
+  - id: "example-tcp"
+    name: "SSH Server"
+    method: "TCP_PING"
+    target: "example.com:22"
+    timeout: 5000
+```
+
+### Monitor Configuration Options
+
+- `id`: Unique identifier for the monitor
+- `name`: Display name
+- `method`: HTTP method (`GET`, `POST`, etc.) or `TCP_PING`
+- `target`: URL or host:port to monitor
+- `tooltip`: Optional tooltip text
+- `statusPageLink`: Optional link when clicking the monitor
+- `expectedCodes`: Array of expected HTTP status codes
+- `timeout`: Request timeout in milliseconds
+- `headers`: Optional HTTP headers
+- `body`: Optional request body
+- `responseKeyword`: Text that must be present in response
+- `responseForbiddenKeyword`: Text that must NOT be present in response
+
+## API Endpoints
+
+The monitoring server exposes the following endpoints:
+
+- `GET /api/status` - Current status of all monitors
+- `GET /api/monitors/:id/history` - Historical data for a specific monitor
+- `GET /api/config` - Public configuration data
+- `GET /health` - Health check endpoint
+
+## Development
+
+### Running in Development Mode
+
+1. Start the monitoring server:
+```bash
+npm run dev:server
+```
+
+2. In another terminal, start the frontend:
+```bash
+npm run dev
+```
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+This will build both the server and frontend applications.
+
+## Notifications
+
+The application supports notifications via [Apprise](https://github.com/caronc/apprise). Configure your notification settings in the YAML file or environment variables.
+
+Example notification URLs:
+- Discord: `discord://webhook_id/webhook_token`
+- Telegram: `tgram://bottoken/ChatID`
+- Email: `mailto://user:pass@domain.com`
+
+## Docker Deployment
+
+### Using Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Using Docker directly
+
+```bash
+docker build -t status-monitor .
+docker run -d -p 3000:3000 -p 3001:3001 \
+  -v $(pwd)/status-config.yaml:/app/status-config.yaml \
+  -v $(pwd)/data:/app/data \
+  status-monitor
+```
+
+## Upgrading from UptimeFlare
+
+This self-hosted version is designed to be a drop-in replacement for UptimeFlare. The main differences:
+
+1. **Configuration**: Moved from `uptime.config.ts` to `status-config.yaml`
+2. **Storage**: Uses SQLite instead of Cloudflare KV
+3. **Monitoring**: All checks run from the server location (no geo-distributed checking)
+4. **Deployment**: Self-hosted instead of Cloudflare Workers
+
+To migrate:
+
+1. Export your monitor configurations from the original `uptime.config.ts`
+2. Convert them to the new YAML format
+3. Update any custom callbacks or notification settings
+4. Deploy the new version
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database connection errors**: Ensure the database path is writable
+2. **Network timeouts**: Check firewall settings and DNS resolution
+3. **Frontend not loading**: Verify the API server is running and accessible
+
+### Logs
+
+Check application logs:
+```bash
+docker-compose logs -f status-monitor
+```
+
+Or for manual installations:
+```bash
+# Server logs
+npm run start:server
+
+# Frontend logs  
+npm run start:frontend
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project maintains the same license as the original UptimeFlare project.
+
+## Support
+
+For issues and questions:
+1. Check the [GitHub issues](https://github.com/alfari24/status/issues)
+2. Review the troubleshooting section
+3. Create a new issue if needed
+
+## Acknowledgments
+
+Based on the original [UptimeFlare](https://github.com/lyc8503/UptimeFlare) project by lyc8503.
