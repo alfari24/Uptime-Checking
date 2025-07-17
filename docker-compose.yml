@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  status-monitor:
+    build: .
+    ports:
+      - "3000:3000"  # Frontend
+      - "3001:3001"  # API Server
+    environment:
+      - NODE_ENV=production
+      - CONFIG_FILE=/app/status-config.yaml
+      - STATUS_API_URL=http://localhost:3001
+    volumes:
+      - ./data:/app/data
+      - ./status-config.yaml:/app/status-config.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  data:

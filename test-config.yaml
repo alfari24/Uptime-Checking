@@ -1,0 +1,18 @@
+title: "Test Status Page"
+
+server:
+  port: 3001
+  host: "0.0.0.0"
+  checkInterval: 1 # minutes
+
+database:
+  path: "./test-status.db"
+  cleanupDays: 90
+
+monitors:
+  - id: "localhost-test"
+    name: "Local Test"
+    method: "GET"
+    target: "http://localhost:3001/health"
+    expectedCodes: [200]
+    timeout: 5000

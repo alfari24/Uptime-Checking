@@ -1,0 +1,94 @@
+title: "Alfari Status Page"
+
+server:
+  port: 3001
+  host: "0.0.0.0"
+  checkInterval: 1 # minutes
+
+database:
+  path: "./status.db"
+  cleanupDays: 90
+
+notification:
+  appriseApiServer: "https://apprise.example.com/notify"
+  recipientUrl: "tgram://bottoken/ChatID"
+  timeZone: "Asia/Shanghai"
+  gracePeriod: 5 # minutes
+  skipNotificationIds: []
+
+monitors:
+  - id: "alfari-site"
+    name: "My Blog"
+    method: "GET"
+    target: "https://alfari.id"
+    tooltip: "My Blog"
+    statusPageLink: "https://alfari.id"
+    hideLatencyChart: false
+    expectedCodes: [200]
+    timeout: 10000
+
+  - id: "alfari-site-blog-photo"
+    name: "My Photo Blog"
+    method: "GET"
+    target: "https://www.inntaka.icu/"
+    tooltip: "My Photo Blog"
+    hideLatencyChart: false
+    expectedCodes: [200]
+    timeout: 10000
+
+  - id: "alfari-photos"
+    name: "Cloud Photos"
+    method: "GET"
+    target: "https://photo.alfari.id"
+    hideLatencyChart: false
+    expectedCodes: [200]
+    timeout: 10000
+
+  - id: "catfein-panel"
+    name: "Panel"
+    method: "GET"
+    target: "https://panel.catfein.co.id/"
+    hideLatencyChart: false
+    expectedCodes: [200]
+    timeout: 10000
+
+  - id: "catfein-node-ca1"
+    name: "Node Canada"
+    method: "TCP_PING"
+    target: "38.102.125.137:8080"
+    tooltip: "Node Canada"
+    timeout: 10000
+
+  - id: "alfari-vm-ca1"
+    name: "Canada"
+    method: "TCP_PING"
+    target: "38.102.125.137:22"
+    tooltip: "Node Canada"
+    timeout: 10000
+
+  - id: "alfari-vm-sg1"
+    name: "Singapore"
+    method: "TCP_PING"
+    target: "38.102.125.137:22"
+    tooltip: "Node Singapore"
+    timeout: 10000
+
+  - id: "alfari-lavalink-us"
+    name: "Lavalink US"
+    method: "GET"
+    target: "https://pool-us.alfari.id"
+    tooltip: "Lavalink US"
+    timeout: 10000
+    headers:
+      User-Agent: "Uptimeflare"
+      Authorization: "alfari"
+
+  - id: "alfari-lavalink-sg"
+    name: "Lavalink SG"
+    method: "GET"
+    target: "https://pool-sg.alfari.id"
+    tooltip: "Lavalink SG"
+    timeout: 10000
+    headers:
+      User-Agent: "Uptimeflare"
+      Authorization: "alfari"
