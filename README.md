@@ -11,6 +11,12 @@ A self-hosted status monitoring application built with Node.js and Next.js, conv
 - **Docker support**: Easy deployment with Docker and Docker Compose (Un Tested)
 - **Configurable**: YAML-based configuration for monitors
 
+## Preview
+<img width="2618" height="2004" alt="image" src="https://github.com/user-attachments/assets/15e14891-4f1f-4bd2-b5cd-b96c0502e7f5" />
+<img width="2636" height="1998" alt="image" src="https://github.com/user-attachments/assets/93488029-78a5-48d0-bb9c-c0f2003fbbae" />
+<img width="2642" height="1996" alt="image" src="https://github.com/user-attachments/assets/0d5420f7-bcd5-459c-81c3-8341a727c94e" />
+
+
 ## Quick Start
 
 ### Option 1: Docker Compose (Un Tested)
