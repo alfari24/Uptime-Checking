@@ -93,7 +93,7 @@ export default function MonitorList({
     // Grouped monitors
     content = (
       //<Accordion multiple defaultValue={Object.keys(group)} variant="filled">
-      <Accordion multiple defaultValue={[]} variant="filled">
+      <Accordion multiple defaultValue={[]} variant="contained">
         {Object.keys(group).map((groupName, index) => (
           <Accordion.Item 
             key={groupName} 
@@ -102,8 +102,7 @@ export default function MonitorList({
               marginBottom: '16px',
               borderRadius: '8px',
               overflow: 'hidden',
-              border: '1px solid var(--mantine-color-gray-3)',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
+              border: '1px solid var(--mantine-color-gray-3)'
             }}
           >
             <Accordion.Control

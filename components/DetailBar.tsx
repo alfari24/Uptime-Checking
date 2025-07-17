@@ -78,7 +78,7 @@ export default function DetailBar({
               hour: '2-digit',
               minute: '2-digit',
             })
-            incidentReasons.push(`[${startStr}-${endStr}] ${incident.error[i]}`)
+            incidentReasons.push(`[${startStr}-${endStr}] Connection issue detected`)
           }
         }
       }

@@ -27,15 +27,6 @@ monitors:
     expectedCodes: [200]
     timeout: 10000
 
-  - id: "alfari-site-blog-photo"
-    name: "My Photo Blog"
-    method: "GET"
-    target: "https://www.inntaka.icu/"
-    tooltip: "My Photo Blog"
-    hideLatencyChart: false
-    expectedCodes: [200]
-    timeout: 10000
-
   - id: "alfari-photos"
     name: "Cloud Photos"
     method: "GET"

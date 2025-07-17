@@ -13,7 +13,7 @@ const pageConfig: PageConfig = {
   // If not specified, all monitors will be shown in a single list
   // If specified, monitors will be grouped and ordered, not-listed monitors will be invisble (but still monitored)
   group: {
-    '🌐 Website': ['alfari-site','alfari-site-blog-photo'],
+    '🌐 Website': ['alfari-site'],
     '🔐 Private': ['alfari-photos'],
     '🏢 Catfein Service': ['catfein-panel', 'catfein-node-ca1'],
     '🎙️ Lavalink': ['alfari-lavalink-us', 'alfari-lavalink-sg'],
