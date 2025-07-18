@@ -10,7 +10,13 @@ const app = new Hono();
 
 // Middleware
 app.use('*', logger());
-app.use('*', cors());
+app.use('*', cors({
+  origin: '*', // Allow requests from any origin
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length', 'X-Requested-With'],
+  maxAge: 86400, // Cache preflight requests for 1 day (in seconds)
+}));
 
 // Initialize services
 const configManager = new ConfigManager();
@@ -63,6 +69,10 @@ app.get('/api/config', (c) => {
         statusPageLink: monitor.statusPageLink,
         hideLatencyChart: monitor.hideLatencyChart,
       })),
+      // Include frontend configuration with proper fallbacks
+      links: config.links || [],
+      group: config.group || {},
+      maintenances: config.maintenances || [],
     });
   } catch (error) {
     console.error('Error getting config:', error);

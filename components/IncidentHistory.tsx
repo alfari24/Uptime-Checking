@@ -11,6 +11,16 @@ interface IncidentHistoryProps {
 export default function IncidentHistory({ monitors, state }: IncidentHistoryProps) {
   const [expanded, setExpanded] = useState(false);
   
+  // Handle case where state is null or undefined
+  if (!state || !state.incident) {
+    return (
+      <Paper mt="xl" p="md" withBorder>
+        <Text fw={600} size="lg">Incident History</Text>
+        <Text c="dimmed" mt="md">No incident data available</Text>
+      </Paper>
+    );
+  }
+  
   // Function to format duration in a human-readable way
   const formatDuration = (start: number, end: number) => {
     const durationSeconds = end - start;

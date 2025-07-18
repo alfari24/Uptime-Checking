@@ -1,9 +1,8 @@
-import { MaintenanceConfig, MonitorTarget } from '@/types/config'
+import { MaintenanceConfig, MonitorTarget, PageConfig } from '@/types/config'
 import { Center, Container, Title } from '@mantine/core'
 import { IconCircleCheck, IconAlertCircle } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import MaintenanceAlert from './MaintenanceAlert'
-import { pageConfig } from '@/frontend.config'
 
 function useWindowVisibility() {
   const [isVisible, setIsVisible] = useState(true)
@@ -19,17 +18,23 @@ export default function OverallStatus({
   state,
   maintenances,
   monitors,
+  pageConfig = { title: '', links: [], group: {} }
 }: {
   state: { overallUp: number; overallDown: number; lastUpdate: number }
   maintenances: MaintenanceConfig[]
   monitors: MonitorTarget[]
+  pageConfig?: PageConfig
 }) {
-  let group = pageConfig.group
+  let group = pageConfig?.group || {}
   let groupedMonitor = (group && Object.keys(group).length > 0) || false
 
   let statusString = ''
   let icon = <IconAlertCircle style={{ width: 64, height: 64, color: '#b91c1c' }} />
-  if (state.overallUp === 0 && state.overallDown === 0) {
+  
+  // Check if state is null or undefined, or if overallUp/overallDown are missing
+  if (!state || typeof state.overallUp !== 'number' || typeof state.overallDown !== 'number') {
+    statusString = 'No data yet'
+  } else if (state.overallUp === 0 && state.overallDown === 0) {
     statusString = 'No data yet'
   } else if (state.overallUp === 0) {
     statusString = 'All systems not operational'

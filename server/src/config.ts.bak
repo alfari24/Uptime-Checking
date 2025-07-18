@@ -81,57 +81,41 @@ export class ConfigManager {
         
         console.log('Parsed YAML group property type:', typeof yamlConfig.group);
         console.log('Parsed YAML group property:', JSON.stringify(yamlConfig.group));
-          // Fix for group not being treated as an object with string[] values
+        
+        // Fix for group not being treated as an object with string[] values
         if (yamlConfig.group && typeof yamlConfig.group === 'object') {
           // Create a new object with the correct structure
           const fixedGroup: { [key: string]: string[] } = {};
           
           Object.entries(yamlConfig.group).forEach(([key, value]) => {
-            console.log(`Processing group ${key}, value type: ${typeof value}, isArray: ${Array.isArray(value)}`);
+            console.log(`Processing group "${key}", value type: ${typeof value}, isArray: ${Array.isArray(value)}`);
             
             if (Array.isArray(value)) {
               fixedGroup[key] = value;
             } else if (value !== null && typeof value === 'object') {
               try {
-                // Handle case where value might be an object with array properties
-                const parsed = value;
+                // Try JSON conversion as a first attempt
+                const parsed = JSON.parse(JSON.stringify(value));
                 
                 // Last resort: try to extract string values from the parsed object
-                const extractedValues = Object.values(parsed);
-                if (extractedValues.length > 0) {
-                  fixedGroup[key] = extractedValues
-                    .filter(item => typeof item === 'string') as string[];
-                  
-                  // Check if we got values
-                  if (fixedGroup[key].length === 0) {
-                    console.warn(`No string values found in group ${key}`);
-                  }
-                }
-              } catch (jsonError) {
-                console.warn(`Failed to process group ${key}`);
-              }            } else if (typeof value === 'string') {
-              // Handle case where the value might be a comma-separated string
-              const strValue = value as string;
-              const items = strValue.split(',').map((item: string) => item.trim());
-              if (items.length > 0) {
-                fixedGroup[key] = items;
-              }
-            } else {
-              // Last resort: try to extract string values from the parsed object
-              try {
-                console.log(`Last resort: try to extract string values from ${key}`);
-                const parsed = JSON.parse(JSON.stringify(value));
                 const extractedValues = Object.values(parsed)
                   .filter(item => typeof item === 'string');
                 
                 if (extractedValues.length > 0) {
                   fixedGroup[key] = extractedValues;
-                } else {
-                  console.warn(`Group ${key} value is not an array, object, or string - skipping`);
                 }
-              } catch (e) {
-                console.warn(`Group ${key} value is not an array, object, or string - skipping`);
+              } catch (jsonError) {
+                console.warn(`Failed to process group ${key} through JSON conversion`);
               }
+            } else if (typeof value === 'string') {
+              // Handle case where the value might be a comma-separated string
+              const items = value.split(',').map((item: string) => item.trim());
+              
+              if (items.length > 0) {
+                fixedGroup[key] = items;
+              }
+            } else {
+              console.warn(`Group ${key} value is not an array, object, or string - skipping`);
             }
           });
           
