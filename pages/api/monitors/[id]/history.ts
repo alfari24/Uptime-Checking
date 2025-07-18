@@ -32,6 +32,22 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     
     if (typeof service.getMonitorHistory === 'function') {
       history = service.getMonitorHistory(monitorId, hours);
+      
+      // Add detailed logging to help diagnose issues
+      console.log(`API: Monitor history for ${monitorId}:`);
+      console.log(`- Latency points: ${history.latency?.length || 0}`);
+      console.log(`- Incidents: ${history.incidents?.length || 0}`);
+        // Log a sample of incidents if any exist
+      if (history.incidents && history.incidents.length > 0) {
+        console.log('- Recent incidents:', history.incidents.slice(0, 3).map((inc: any) => ({
+          id: inc.id,
+          start: new Date(inc.start * 1000).toLocaleString(),
+          end: inc.end ? new Date(inc.end * 1000).toLocaleString() : 'ongoing',
+          error: inc.error
+        })));
+      } else {
+        console.log('- No incidents found');
+      }
     } else {
       console.log('getMonitorHistory method not found, using mock data');
       // Create some mock history data

@@ -264,20 +264,32 @@ export async function getServerSideProps() {
           } else {
             console.log(`Failed to get history for ${monitor.id}: ${historyResponse.status}`);
           }
-          
-          // Create incident data structure from history
+            // Create incident data structure from history
           const incidents = historyData?.incidents || [];
-          state.incident[monitor.id] = incidents.length > 0 
-            ? incidents.map((inc: any) => ({
-                start: [inc.start],
-                end: inc.end,
-                error: [inc.error],
-              }))
-            : [{
-                start: [statusData.updatedAt],
-                end: monitorStatus.up ? statusData.updatedAt : undefined,
-                error: [monitorStatus.message],
-              }];
+          console.log(`Processing incidents for ${monitor.id}: ${incidents.length} found`, incidents);
+          
+          if (incidents.length > 0) {
+            // Sort incidents by start time (newest first) for proper processing
+            const sortedIncidents = [...incidents].sort((a, b) => b.start - a.start);
+            
+            // Map them to the expected format
+            state.incident[monitor.id] = sortedIncidents.map((inc: any) => ({
+              start: [inc.start],
+              end: inc.end,
+              error: [inc.error || monitorStatus.message || 'Unknown error'],
+            }));
+            
+            console.log(`Processed ${sortedIncidents.length} incidents for ${monitor.id}`);
+          } else {
+            // If no historical incidents exist, create a fallback based on current status
+            const hasDowntime = !monitorStatus.up;
+            state.incident[monitor.id] = [{
+              start: [statusData.updatedAt - (hasDowntime ? 300 : 0)], // 5 minutes ago if currently down
+              end: monitorStatus.up ? statusData.updatedAt : undefined,
+              error: [monitorStatus.message || 'Connection issue detected'],
+            }];
+            console.log(`Created fallback incident for ${monitor.id}: ${monitorStatus.up ? 'UP' : 'DOWN'}`);
+          }
           
           // Create latency data structure with historical data if available
           const historyLatencyData = historyData?.latency || [];

@@ -21,6 +21,11 @@ export default function IncidentHistory({ monitors, state }: IncidentHistoryProp
     );
   }
   
+  // Log the incident data to help debug
+  console.log('IncidentHistory - Current state:', state);
+  console.log('IncidentHistory - Monitors:', monitors.map(m => m.id));
+  console.log('IncidentHistory - Incident data:', state.incident);
+  
   // Function to format duration in a human-readable way
   const formatDuration = (start: number, end: number) => {
     const durationSeconds = end - start;
@@ -45,12 +50,28 @@ export default function IncidentHistory({ monitors, state }: IncidentHistoryProp
   
   // Collect and flatten all incidents
   const allIncidents = monitors.flatMap(monitor => {
-    const monitorIncidents = state.incident[monitor.id] || [];
+    // If this monitor has no incidents, skip
+    if (!state.incident[monitor.id]) {
+      console.log(`Monitor ${monitor.id} has no incidents recorded`);
+      return [];
+    }
+    
+    const monitorIncidents = state.incident[monitor.id];
+    console.log(`Monitor ${monitor.id} has ${monitorIncidents.length} incidents:`, 
+      JSON.stringify(monitorIncidents, null, 2));
+    
     return monitorIncidents.map(incident => {
       // Get the first start time and error message
       const startTime = incident.start[0];
       const endTime = incident.end || Math.floor(Date.now() / 1000);
       const errorMsg = incident.error[0];
+      
+      // Log incident details for debugging
+      console.log(`Processing incident for ${monitor.id}:`, { 
+        start: new Date(startTime * 1000).toLocaleString(),
+        end: incident.end ? new Date(endTime * 1000).toLocaleString() : 'ongoing',
+        error: errorMsg
+      });
       
       return {
         monitorId: monitor.id,
@@ -142,9 +163,9 @@ export default function IncidentHistory({ monitors, state }: IncidentHistoryProp
                 {formattedDate} <IconClock size={14} style={{verticalAlign: 'text-top', marginRight: '5px', marginLeft: '5px'}}/> {formattedTime}
               </Text>              <Text size="sm" mb={4}>
                 Duration: {formatDuration(incident.start, incident.end)}
-              </Text>              <Tooltip label="Detailed error information hidden for security" multiline maw={300}>
+              </Text>              <Tooltip label={incident.error} multiline maw={300}>
                 <Text size="sm" color="dimmed" lineClamp={1}>
-                  Error: Connection issue detected
+                  Error: {incident.error || "Connection issue detected"}
                 </Text>
               </Tooltip>
             </Timeline.Item>
