@@ -1,6 +1,6 @@
 # Self-Hosted Status Monitor
 
-A self-hosted status monitoring application built with Node.js and Next.js, converted from the original Cloudflare-based UptimeFlare.
+A self-hosted status monitoring application built with Node.js and Next.js.
 
 ## Features
 
@@ -8,17 +8,8 @@ A self-hosted status monitoring application built with Node.js and Next.js, conv
 - **SQLite database**: Local file-based storage for monitor data
 - **Beautiful UI**: Modern React-based status page
 - **Notifications**: Support for Apprise notifications
-- **Docker support**: Easy deployment with Docker and Docker Compose (Un Tested)
-- **Configurable**: YAML-based configuration for monitors
-- **Consolidated deployment**: Single application deployment option with unified server/frontend
-
-## Deployment Options
-
-This project can be deployed in two ways:
-1. **Traditional mode**: Separate frontend and backend servers (original approach)
-2. **Consolidated mode**: Single application combining frontend and backend (recommended)
-
-For consolidated deployment instructions, see [CONSOLIDATED_README.md](./CONSOLIDATED_README.md).
+- **Configurable**: YAML-based configuration for all settings
+- **Consolidated deployment**: Single application deployment with unified server/frontend
 
 ## Preview
 <img width="2618" height="2004" alt="image" src="https://github.com/user-attachments/assets/15e14891-4f1f-4bd2-b5cd-b96c0502e7f5" />
@@ -28,15 +19,25 @@ For consolidated deployment instructions, see [CONSOLIDATED_README.md](./CONSOLI
 
 ## Quick Start
 
-### Option 1: Docker Compose (Un Tested)
+### Installation
 
-1. Clone the repository:
+1. **Prerequisites:**
+   - Node.js 20 (Tested on v20.19.4) 
+   - npm
+
+2. **Clone the repository:**
 ```bash
 git clone https://github.com/alfari24/status.git
 cd status
 ```
 
-2. Configure your monitors by editing `status-config.yaml`:
+3. **Install dependencies and build:**
+```bash
+npm install
+npm run build:complete
+```
+
+4. **Configure your monitors by editing `server/status-config.yaml`:**
 ```yaml
 title: "My Status Page"
 monitors:
@@ -48,46 +49,12 @@ monitors:
     timeout: 10000
 ```
 
-3. Start the application:
+5. **Start the application:**
 ```bash
-docker-compose up -d
+npm run start
 ```
 
-4. Access your status page at `http://localhost:3000`
-
-### Option 2: Manual Installation (Recommended)
-
-1. **Prerequisites:**
-   - Node.js 20 (Tested on v20.19.4) 
-   - npm
-
-2. **Install dependencies:**
-```bash
-npm install
-cd server && npm install && cd ..
-```
-
-3. **Configure the application:**
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-4. **Build the application:**
-```bash
-npm run build
-```
-
-5. **Start the services:**
-```bash
-# Start the monitoring server
-npm run start:server &
-
-# Start the frontend
-npm run start:frontend
-```
-
-6. Access your status page at `http://localhost:3000`
+6. Access your status page at `http://localhost:17069`
 
 ## Configuration
 
@@ -97,7 +64,8 @@ Create a `.env` file in the root directory:
 
 ```env
 # Server configuration
-PORT=3001
+PORT=17069
+API_PORT=3001
 HOST=0.0.0.0
 CHECK_INTERVAL=1
 
@@ -113,14 +81,11 @@ GRACE_PERIOD=5
 
 # Application title
 APP_TITLE=Status Monitor
-
-# Frontend API URL
-STATUS_API_URL=http://localhost:3001
 ```
 
 ### YAML Configuration
 
-Edit a `server/status-config.yaml` file:
+Edit the `server/status-config.yaml` file:
 
 ```yaml
 title: "My Status Page"
@@ -139,6 +104,28 @@ notification:
   recipientUrl: "tgram://bottoken/ChatID"
   timeZone: "Asia/Shanghai"
   gracePeriod: 5 # minutes
+
+# Frontend configuration
+links:
+  - link: "https://github.com/yourusername"
+    label: "GitHub"
+  - link: "https://example.com"
+    label: "Website"
+    highlight: true
+
+# Monitor groups for frontend display
+group:
+  "🌐 Websites": ["website-id", "blog-id"]
+  "🖥️ Servers": ["server-id", "database-id"]
+
+# Maintenance information
+maintenances:
+  - monitors: ["website-id"]
+    title: "Scheduled Maintenance"
+    body: "System upgrade in progress"
+    start: "2025-07-20T00:00:00Z"
+    end: "2025-07-20T02:00:00Z"
+    color: "blue"
 
 monitors:
   - id: "example-website"
@@ -194,20 +181,18 @@ The monitoring server exposes the following endpoints:
 
 ### Running in Development Mode
 
-1. Start the monitoring server:
-```bash
-npm run dev:server
-```
+Start the development server:
 
-2. In another terminal, start the frontend:
 ```bash
 npm run dev
 ```
 
+
+
 ### Building for Production
 
 ```bash
-npm run build
+npm run build:complete
 ```
 
 This will build both the server and frontend applications.
@@ -221,39 +206,7 @@ Example notification URLs:
 - Telegram: `tgram://bottoken/ChatID`
 - Email: `mailto://user:pass@domain.com`
 
-## Docker Deployment
-
-### Using Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-### Using Docker directly
-
-```bash
-docker build -t status-monitor .
-docker run -d -p 3000:3000 -p 3001:3001 \
-  -v $(pwd)/status-config.yaml:/app/status-config.yaml \
-  -v $(pwd)/data:/app/data \
-  status-monitor
-```
-
-## Upgrading from UptimeFlare
-
-This self-hosted version is designed to be a drop-in replacement for UptimeFlare. The main differences:
-
-1. **Configuration**: Moved from `uptime.config.ts` to `status-config.yaml`
-2. **Storage**: Uses SQLite instead of Cloudflare KV
-3. **Monitoring**: All checks run from the server location (no geo-distributed checking)
-4. **Deployment**: Self-hosted instead of Cloudflare Workers
-
-To migrate:
-
-1. Export your monitor configurations from the original `uptime.config.ts`
-2. Convert them to the new YAML format
-3. Update any custom callbacks or notification settings
-4. Deploy the new version
+For detailed configuration options, see [the configuration documentation](./docs/configuration.md).
 
 ## Troubleshooting
 
@@ -265,38 +218,15 @@ To migrate:
 
 ### Logs
 
-Check application logs:
+Check application logs by running the server in the foreground:
+
 ```bash
-docker-compose logs -f status-monitor
+npm run start
 ```
-
-Or for manual installations:
-```bash
-# Server logs
-npm run start:server
-
-# Frontend logs  
-npm run start:frontend
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## License
 
 This project maintains the same license as the original UptimeFlare project.
-
-## Support
-
-For issues and questions:
-1. Check the [GitHub issues](https://github.com/alfari24/status/issues)
-2. Review the troubleshooting section
-3. Create a new issue if needed
 
 ## Acknowledgments
 

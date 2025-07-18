@@ -25,12 +25,16 @@ export default function OverallStatus({
   monitors: MonitorTarget[]
   pageConfig?: PageConfig
 }) {
-  let group = pageConfig.group || {}
+  let group = pageConfig?.group || {}
   let groupedMonitor = (group && Object.keys(group).length > 0) || false
 
   let statusString = ''
   let icon = <IconAlertCircle style={{ width: 64, height: 64, color: '#b91c1c' }} />
-  if (state.overallUp === 0 && state.overallDown === 0) {
+  
+  // Check if state is null or undefined, or if overallUp/overallDown are missing
+  if (!state || typeof state.overallUp !== 'number' || typeof state.overallDown !== 'number') {
+    statusString = 'No data yet'
+  } else if (state.overallUp === 0 && state.overallDown === 0) {
     statusString = 'No data yet'
   } else if (state.overallUp === 0) {
     statusString = 'All systems not operational'

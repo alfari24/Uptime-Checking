@@ -12,6 +12,13 @@
   align-items: center;
 }
 
+.title {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
 .link {
   display: block;
   line-height: 1;

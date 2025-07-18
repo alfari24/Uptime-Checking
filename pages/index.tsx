@@ -33,12 +33,40 @@ export default function Home({
   tooltip?: string
   statusPageLink?: string
 }) {
+  console.log('Home component received pageConfig:', pageConfig);
+  console.log('Group data in Home:', pageConfig?.group);
   const [monitorId, setMonitorId] = useState<string>('');
-  
-  // Parse state
+    // Parse state
   let state;
-  if (stateStr !== undefined) {
-    state = JSON.parse(stateStr) as MonitorState;
+  if (stateStr !== undefined && stateStr !== null && stateStr !== 'null') {
+    try {
+      state = JSON.parse(stateStr) as MonitorState;
+      // Ensure state has the required properties
+      if (!state.overallUp && state.overallUp !== 0) state.overallUp = 0;
+      if (!state.overallDown && state.overallDown !== 0) state.overallDown = 0;
+      if (!state.lastUpdate) state.lastUpdate = Date.now();
+      if (!state.incident) state.incident = {};
+      if (!state.latency) state.latency = {};
+    } catch (e) {
+      console.error('Error parsing state:', e);
+      // Provide default state object
+      state = {
+        overallUp: 0,
+        overallDown: 0,
+        lastUpdate: Date.now(),
+        incident: {},
+        latency: {}
+      };
+    }
+  } else {
+    // Provide default state object when stateStr is undefined, null, or 'null'
+    state = {
+      overallUp: 0,
+      overallDown: 0,
+      lastUpdate: Date.now(),
+      incident: {},
+      latency: {}
+    };
   }
   
   // Get hash from URL on client side only
@@ -78,26 +106,26 @@ export default function Home({
     <>      <Head>
         <title>{pageConfig?.title || 'Status Monitor'}</title>
         <link rel="icon" href="https://weissowl.b-cdn.net/Images/Asset/logos.png" />
-      </Head>
-      <main className={inter.className}>
-        {state === undefined ? (
-          <Center>
-            <Text fw={700}>
-              Monitor State is not defined now, please check your worker&apos;s status and KV
-              binding!
-            </Text>
-          </Center>
-        ) : (          <div>
-            <OverallStatus state={state} monitors={monitors} maintenances={maintenances} pageConfig={pageConfig} />
-            <MonitorList monitors={monitors} state={state} pageConfig={pageConfig} />
-            <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
-              <IncidentHistory monitors={monitors} state={state} />
-            </div>
-          </div>)}
-        <Footer pageConfig={pageConfig} />
-      </main>
+      </Head>      <main className={inter.className}>
+        <div>
+          <OverallStatus state={state} monitors={monitors} maintenances={maintenances} pageConfig={pageConfig} />
+          <MonitorList monitors={monitors} state={state} pageConfig={pageConfig} />
+          <div style={{ maxWidth: '1150px', margin: '0 auto' }}>
+            <IncidentHistory monitors={monitors} state={state} />
+          </div>
+        </div>
+        <Footer pageConfig={pageConfig} />      </main>
     </>
   )
+}
+
+// Add a debug function to print data formats
+function debugObjectFormat(obj: any): string {
+  try {
+    return `Type: ${typeof obj}, IsArray: ${Array.isArray(obj)}, Keys: ${obj && typeof obj === 'object' ? Object.keys(obj).join(', ') : 'N/A'}`;
+  } catch (e) {
+    return `Error debugging object: ${e}`;
+  }
 }
 
 export async function getServerSideProps() {
@@ -159,12 +187,33 @@ export async function getServerSideProps() {
     }    const statusData = await statusResponse.json() as any
     const configData = await configResponse.json() as any
     
+    console.log('Raw config data from API:', configData);
+    console.log('Raw group data from API:', typeof configData.group, configData.group);
+        // Process the API response
+    console.log('Raw config from API:', configData);
+    console.log('Raw links from API:', configData.links);
+    console.log('Raw group from API:', configData.group);
+    
+    // Properly handle the links
+    const links = Array.isArray(configData.links) ? configData.links : [];
+    
+    // Process the group object to ensure proper format
+    let groupData = {};
+    if (configData.group && typeof configData.group === 'object') {
+      groupData = configData.group;
+      console.log('Group data from API is an object');
+    }
+    
     // Extract frontend configuration from the API response
     const serverPageConfig: PageConfig = {
-      title: configData.title,
-      links: configData.links || [],
-      group: configData.group || {}
+      title: configData.title || 'Status Monitor',
+      links: links,
+      group: groupData
     };
+    
+    // Log the processed data
+    console.log('Processed links:', serverPageConfig.links);
+    console.log('Processed group:', serverPageConfig.group);
     
     // Extract maintenances from the API response
     const serverMaintenances = configData.maintenances || [];
@@ -286,20 +335,43 @@ export async function getServerSideProps() {
     // Update the state with correct counts
     state.overallUp = overallUp;
     state.overallDown = overallDown;
-      console.log(`Recalculated overall status: ${overallUp} up, ${overallDown} down`);
-
+      console.log(`Recalculated overall status: ${overallUp} up, ${overallDown} down`);    // Ensure all data is serializable for Next.js
+    const safeState = JSON.parse(JSON.stringify(state || null));
+    const safeMonitors = JSON.parse(JSON.stringify(configData.monitors || []));
+    const safeMaintenances = JSON.parse(JSON.stringify(serverMaintenances || []));
+    
+    // Ensure the pageConfig object is properly structured and serializable
+    const safePageConfig = {
+      title: serverPageConfig.title || "Status Monitor",
+      links: Array.isArray(serverPageConfig.links) ? serverPageConfig.links : [],
+      group: serverPageConfig.group || {}
+    };
+    
+    // Verify the group structure to ensure it's serializable
+    if (safePageConfig.group) {
+      Object.entries(safePageConfig.group).forEach(([key, value]) => {
+        if (!Array.isArray(value)) {
+          safePageConfig.group[key] = [];
+        }
+      });
+    }
+    
+    console.log('Final pageConfig being sent to client:', JSON.stringify(safePageConfig, null, 2));
+    
     return { 
       props: { 
-        state: JSON.stringify(state),
-        monitors: configData.monitors,
-        maintenances: serverMaintenances,
-        pageConfig: serverPageConfig
+        state: JSON.stringify(safeState),
+        monitors: safeMonitors,
+        maintenances: safeMaintenances,
+        pageConfig: safePageConfig
       } 
-    }  } catch (error) {
+    }  
+  } catch (error) {
     console.error('Error fetching data:', error)
+    // Provide safe fallback values that are guaranteed to be serializable
     return { 
       props: { 
-        state: undefined, 
+        state: JSON.stringify(null), 
         monitors: [],
         maintenances: [],
         pageConfig: {

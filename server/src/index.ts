@@ -69,6 +69,10 @@ app.get('/api/config', (c) => {
         statusPageLink: monitor.statusPageLink,
         hideLatencyChart: monitor.hideLatencyChart,
       })),
+      // Include frontend configuration with proper fallbacks
+      links: config.links || [],
+      group: config.group || {},
+      maintenances: config.maintenances || [],
     });
   } catch (error) {
     console.error('Error getting config:', error);

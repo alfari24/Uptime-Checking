@@ -1,7 +1,7 @@
 title: "Alfari Status Page"
 
 server:
-  port: 3001
+  port: 3002
   host: "0.0.0.0"
   checkInterval: 1 # minutes
 

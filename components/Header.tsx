@@ -3,6 +3,10 @@ import classes from '@/styles/Header.module.css'
 import { PageConfigLink } from '@/types/config'
 
 export default function Header({ pageConfig }: { pageConfig: any }) {
+  // Ensure pageConfig has default values
+  const safePageConfig = pageConfig || { title: 'Status Monitor', links: [] };
+  const title = safePageConfig.title || 'Status Monitor';
+  
   const linkToElement = (link: PageConfigLink) => {
     return (
       <a
@@ -19,25 +23,14 @@ export default function Header({ pageConfig }: { pageConfig: any }) {
   return (
     <header className={classes.header}>
       <Container size="lg" style={{ maxWidth: '1200px' }} className={classes.inner}>
-        <div>
-          <a href="https://github.com/lyc8503/UptimeFlare" target="_blank">
-            <Text size="xl" span>
-              🕒
-            </Text>
-            <Text
-              size="xl"
-              span
-              fw={700}
-              variant="gradient"
-              gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
-            >
-              UptimeFlare
-            </Text>
-          </a>
-        </div>        <Group gap={5} visibleFrom="sm" style={{ maxWidth: '850px', width: '100%' }}>
-          {pageConfig.links?.map(linkToElement)}
-        </Group>        <Group gap={5} hiddenFrom="sm" style={{ maxWidth: '850px', width: '100%' }}>
-          {pageConfig.links?.filter((link) => link.highlight).map(linkToElement)}
+        <div className={classes.title}>
+          <Text size="xl" fw={700}>{title}</Text>
+        </div>
+        <Group gap={5} visibleFrom="sm" style={{ maxWidth: '850px', width: '100%' }}>
+          {safePageConfig.links?.map(linkToElement)}
+        </Group>
+        <Group gap={5} hiddenFrom="sm" style={{ maxWidth: '850px', width: '100%' }}>
+          {safePageConfig.links?.filter((link: PageConfigLink) => link.highlight).map(linkToElement)}
         </Group>
       </Container>
     </header>

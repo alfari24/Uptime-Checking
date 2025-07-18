@@ -11,7 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <NoSsr>
       <MantineProvider defaultColorScheme="light">
-        <Header pageConfig={pageConfig} />
+        {/* Header dinonaktifkan */}
         <Component {...pageProps} />
       </MantineProvider>
     </NoSsr>
