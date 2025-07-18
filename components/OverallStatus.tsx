@@ -1,4 +1,4 @@
-import { MaintenanceConfig, MonitorTarget, PageConfig } from '@/types/config'
+import { MaintenanceConfig, MonitorState, MonitorTarget, PageConfig } from '@/types/config'
 import { Center, Container, Title } from '@mantine/core'
 import { IconCircleCheck, IconAlertCircle } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
@@ -20,7 +20,7 @@ export default function OverallStatus({
   monitors,
   pageConfig = { title: '', links: [], group: {} }
 }: {
-  state: { overallUp: number; overallDown: number; lastUpdate: number }
+  state: MonitorState
   maintenances: MaintenanceConfig[]
   monitors: MonitorTarget[]
   pageConfig?: PageConfig
@@ -39,8 +39,36 @@ export default function OverallStatus({
   } else if (state.overallUp === 0) {
     statusString = 'All systems not operational'
   } else if (state.overallDown === 0) {
-    statusString = 'All systems operational'
-    icon = <IconCircleCheck style={{ width: 64, height: 64, color: '#059669' }} />
+    // Validate if truly all systems are operational by checking each monitor individually
+    let allTrulyOperational = true;
+    
+    // Check each monitor's actual status
+    monitors.forEach(monitor => {
+      // Check for open incidents
+      if (state.incident && state.incident[monitor.id] && state.incident[monitor.id].length > 0) {
+        const latestIncident = state.incident[monitor.id].slice(-1)[0];
+        if (latestIncident && latestIncident.end === undefined) {
+          allTrulyOperational = false;
+        }
+      }
+      
+      // Check for 0 ping in recent data
+      if (allTrulyOperational && state.latency && state.latency[monitor.id] && state.latency[monitor.id].recent && state.latency[monitor.id].recent.length > 0) {
+        const latestPoint = state.latency[monitor.id].recent.slice(-1)[0];
+        if (latestPoint && latestPoint.ping === 0) {
+          allTrulyOperational = false;
+        }
+      }
+    });
+    
+    if (allTrulyOperational) {
+      statusString = 'All systems operational';
+      icon = <IconCircleCheck style={{ width: 64, height: 64, color: '#059669' }} />;
+    } else {
+      // Some systems are actually down despite overallDown being 0
+      statusString = 'Some systems not operational';
+      // Keep the alert icon
+    }
   } else {
     statusString = `Some systems not operational (${state.overallDown} out of ${
       state.overallUp + state.overallDown
