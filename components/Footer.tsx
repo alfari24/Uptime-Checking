@@ -1,7 +1,6 @@
 import { Container, Text, Group, Anchor } from '@mantine/core';
-import { pageConfig } from '@/frontend.config';
 
-export default function Footer() {
+export default function Footer({ pageConfig = { title: 'Status Monitor', links: [] } }: { pageConfig?: any }) {
   const currentYear = new Date().getFullYear();
 
   return (

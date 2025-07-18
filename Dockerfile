@@ -47,19 +47,20 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server/node_modules ./server/node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/server/status-config.yaml ./server/status-config.yaml
 
 # Copy configuration files
 COPY --from=builder /app/config.yaml ./config.yaml
-COPY --from=builder /app/status-config.yaml ./status-config.yaml
 COPY --from=builder /app/frontend.config.* ./
 COPY --from=builder /app/types ./types
+COPY --from=builder /app/lib ./lib
 
 USER nextjs
 
-EXPOSE 3000 3001
+# Single port for consolidated application
+EXPOSE 17069
 
-# Create startup script
-COPY --from=builder /app/start.sh ./start.sh
-RUN chmod +x ./start.sh
+ENV PORT=17069
 
-CMD ["./start.sh"]
+# Start the Next.js application (consolidated server + frontend)
+CMD ["npm", "start"]

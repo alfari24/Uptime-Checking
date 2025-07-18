@@ -1,9 +1,8 @@
-import { MaintenanceConfig, MonitorTarget } from '@/types/config'
+import { MaintenanceConfig, MonitorTarget, PageConfig } from '@/types/config'
 import { Center, Container, Title } from '@mantine/core'
 import { IconCircleCheck, IconAlertCircle } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import MaintenanceAlert from './MaintenanceAlert'
-import { pageConfig } from '@/frontend.config'
 
 function useWindowVisibility() {
   const [isVisible, setIsVisible] = useState(true)
@@ -19,12 +18,14 @@ export default function OverallStatus({
   state,
   maintenances,
   monitors,
+  pageConfig = { title: '', links: [], group: {} }
 }: {
   state: { overallUp: number; overallDown: number; lastUpdate: number }
   maintenances: MaintenanceConfig[]
   monitors: MonitorTarget[]
+  pageConfig?: PageConfig
 }) {
-  let group = pageConfig.group
+  let group = pageConfig.group || {}
   let groupedMonitor = (group && Object.keys(group).length > 0) || false
 
   let statusString = ''

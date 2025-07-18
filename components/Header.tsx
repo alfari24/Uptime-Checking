@@ -1,9 +1,8 @@
 import { Container, Group, Text } from '@mantine/core'
 import classes from '@/styles/Header.module.css'
-import { pageConfig } from '@/frontend.config'
 import { PageConfigLink } from '@/types/config'
 
-export default function Header() {
+export default function Header({ pageConfig }: { pageConfig: any }) {
   const linkToElement = (link: PageConfigLink) => {
     return (
       <a

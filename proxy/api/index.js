@@ -6,7 +6,7 @@ const defaultTimeout = 5000 // 5 seconds, a lower default for deployments on pla
 const express = require('express')
 const net = require('net')
 const app = express()
-const port = 3000
+const port = process.env.PORT || 17069
 
 async function getWorkerLocation() {
   const res = await fetch('https://cloudflare.com/cdn-cgi/trace')

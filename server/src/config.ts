@@ -30,6 +30,21 @@ export interface NotificationConfig {
   skipNotificationIds?: string[];
 }
 
+export interface PageConfigLink {
+  link: string;
+  label: string;
+  highlight?: boolean;
+}
+
+export interface MaintenanceConfig {
+  monitors?: string[];
+  title?: string;
+  body: string;
+  start: number | string;
+  end?: number | string;
+  color?: string;
+}
+
 export interface AppConfig {
   title: string;
   monitors: MonitorConfig[];
@@ -43,6 +58,10 @@ export interface AppConfig {
     path: string;
     cleanupDays: number;
   };
+  // Frontend configuration
+  links?: PageConfigLink[];
+  group?: { [key: string]: string[] };
+  maintenances?: MaintenanceConfig[];
 }
 
 export class ConfigManager {
@@ -125,6 +144,10 @@ export class ConfigManager {
         ...defaults.database,
         ...yamlConfig.database,
       },
+      // Include frontend configuration elements
+      links: yamlConfig.links || [],
+      group: yamlConfig.group || {},
+      maintenances: yamlConfig.maintenances || [],
     };
   }
 
@@ -146,6 +169,18 @@ export class ConfigManager {
 
   getDatabaseConfig() {
     return this.config.database;
+  }
+
+  getLinks(): PageConfigLink[] {
+    return this.config.links || [];
+  }
+
+  getGroup(): { [key: string]: string[] } {
+    return this.config.group || {};
+  }
+
+  getMaintenances(): MaintenanceConfig[] {
+    return this.config.maintenances || [];
   }
 }
 

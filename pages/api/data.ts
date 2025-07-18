@@ -1,28 +1,21 @@
 import { NextRequest } from 'next/server'
+import { getOrInitMonitoringService } from '@/lib/monitoring-service'
 
 export const runtime = 'edge'
 
 export default async function handler(req: NextRequest): Promise<Response> {
   try {
-    // Get the API server URL from environment or use default
-    const apiServer = process.env.STATUS_API_URL || 'http://localhost:3001'
-    
-    // Fetch status from the Node.js server
-    const response = await fetch(`${apiServer}/api/status`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    // In the consolidated approach, we access the monitoring service directly
+    // instead of making an HTTP request to another server
+    const service = getOrInitMonitoringService()
+    const data = service.getStatus()
 
-    if (!response.ok) {
-      throw new Error(`API server responded with ${response.status}`)
-    }
-
-    const data = await response.json()
-    
     return new Response(JSON.stringify(data), {
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     })
   } catch (error) {

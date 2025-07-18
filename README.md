@@ -10,6 +10,15 @@ A self-hosted status monitoring application built with Node.js and Next.js, conv
 - **Notifications**: Support for Apprise notifications
 - **Docker support**: Easy deployment with Docker and Docker Compose (Un Tested)
 - **Configurable**: YAML-based configuration for monitors
+- **Consolidated deployment**: Single application deployment option with unified server/frontend
+
+## Deployment Options
+
+This project can be deployed in two ways:
+1. **Traditional mode**: Separate frontend and backend servers (original approach)
+2. **Consolidated mode**: Single application combining frontend and backend (recommended)
+
+For consolidated deployment instructions, see [CONSOLIDATED_README.md](./CONSOLIDATED_README.md).
 
 ## Preview
 <img width="2618" height="2004" alt="image" src="https://github.com/user-attachments/assets/15e14891-4f1f-4bd2-b5cd-b96c0502e7f5" />

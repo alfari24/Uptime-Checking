@@ -1,7 +1,6 @@
-import { MonitorState, MonitorTarget } from '@/types/config'
+import { MonitorState, MonitorTarget, PageConfig } from '@/types/config'
 import { Accordion, Card, Center, Text, Divider } from '@mantine/core'
 import MonitorDetail from './MonitorDetail'
-import { pageConfig } from '@/frontend.config'
 
 function countUpMonitors(state: MonitorState, monitors: MonitorTarget[], groupIds: string[]) {
   console.log('Evaluating monitors for group:', groupIds);
@@ -66,12 +65,13 @@ function getStatusTextColor(state: MonitorState, monitors: MonitorTarget[], grou
 export default function MonitorList({
   monitors,
   state,
+  pageConfig
 }: {
   monitors: MonitorTarget[]
   state: MonitorState
+  pageConfig: PageConfig
 }) {
-  // @ts-ignore
-  let group: any = pageConfig.group
+  let group: any = pageConfig?.group || {}
   let groupedMonitor = group && Object.keys(group).length > 0
   let content
 

@@ -16,6 +16,33 @@ notification:
   gracePeriod: 5 # minutes
   skipNotificationIds: []
 
+# Frontend configuration
+links:
+  - link: "https://github.com/alfari24"
+    label: "GitHub"
+  - link: "https://alfari.id/"
+    label: "Blog"
+  - link: "mailto:ari@alfari.id"
+    label: "Email Me"
+    highlight: true
+
+# Monitor groups for frontend display
+group:
+  "🌐 Website": ["alfari-site"]
+  "🔐 Private": ["alfari-photos"]
+  "🏢 Catfein Service": ["catfein-panel", "catfein-node-ca1"]
+  "🎙️ Lavalink": ["alfari-lavalink-us", "alfari-lavalink-sg"]
+  "🖥️ Server": ["alfari-vm-ca1", "alfari-vm-sg1"]
+
+# Maintenance information
+maintenances:
+  - monitors: ["foo_monitor", "bar_monitor"]
+    title: "Test Maintenance"
+    body: "This is a test maintenance, server software upgrade"
+    start: "2025-04-27T00:00:00+08:00"
+    end: "2025-04-30T00:00:00+08:00"
+    color: "blue"
+
 monitors:
   - id: "alfari-site"
     name: "My Blog"
